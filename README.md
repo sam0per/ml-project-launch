@@ -29,16 +29,22 @@ This is the process you will follow for **each new client project**.
 ### Step 3: Setup the Python Environment
 1.  **Create a virtual environment:**
     ```bash
-    python -m venv .venv
+    conda create -n ml-launch python=3.12
     ```
-2.  **Activate it:**
-    *   On macOS/Linux: `source .venv/bin/activate`
-    *   On Windows: `.venv\Scripts\activate`
+2.  **Activate the environment**
+    ```bash
+    conda activate ml-launch
+    ```
 3.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Configure API Keys:**
+4.  **Install the project in editable mode along with its core dependencies**
+    ```bash
+    # This command reads setup.py and installs the package, making it importable.
+    pip install -e .
+    ```
+5.  **Configure API Keys:**
     ```bash
     # Copy the example environment file
     cp .env.example .env
@@ -62,6 +68,8 @@ git push origin project/awesome-client-analysis # Push the new branch the script
 ```
 3. Finally, give your collaborator access to this fork and branch.
 
+---
+
 ## For the Technical Collaborator
 Once the Project Lead has completed the steps above and granted you access:
 1. Clone the Project Lead's fork (not the original template):
@@ -75,6 +83,8 @@ git fetch origin
 git checkout project/awesome-client-analysis
 ```
 3. The `outputs/` directory contains your blueprint (`manifest.json` and `strategy.md`) for execution.
+
+---
 
 ## Local Development (For Modifying This Template)
 If you want to improve this template itself (e.g., add new questions, change the script):
