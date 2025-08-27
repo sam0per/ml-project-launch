@@ -4,7 +4,7 @@ This repository is the **"Golden Template"** for all new client projects. It is 
 
 ## Purpose
 1.  **For Project Lead:** Ensure a consistent and best-practice start for every new project.
-2.  **Capture Requirements:** Guide the lead through a structured questionnaire to capture all critical project information.
+2.  **Capture Requirements:** Parse structured meeting notes to capture all critical project information.
 3.  **Generate Blueprint:** Produce a `project_manifest.json` and a first-draft AI-generated strategy document (`strategy.md`) to align everyone involved.
 
 ---
@@ -52,21 +52,40 @@ This is the process you will follow for **each new client project**.
     # (e.g., OPENAI_API_KEY='sk-your-key-here')
     ```
 
-### Step 4: Run the Project Initialization Script
-Execute the script and follow the prompts. It will handle branch creation and file generation.
+### Step 4: Document Project Requirements
+Before running the script, you must document the project's requirements in a structured notes file.
+
+1.  **Create an `inputs` directory** if it doesn't already exist:
+    ```bash
+    mkdir -p inputs
+    ```
+2.  **Copy the template** into the `inputs` directory and rename it. It's good practice to include the date.
+    ```bash
+    cp templates/PROJECT_NOTES_TEMPLATE.md inputs/2023-10-27-awesome-client-notes.md
+    ```
+3.  **Fill out the new Markdown file** (`inputs/2023-10-27-awesome-client-notes.md`) with the project details.
+
+### Step 5: Run the Project Initialization Script
+Execute the script from the root of the project. It will automatically find the most recent notes file in the `inputs/` directory, parse it, and generate the project manifest.
+
 ```bash
 python project_init/cli.py
 ```
 
-### Step 5: Review, Commit, and Push
-1. Review the generated files in the `outputs/` directory.
-2. Commit the new branch and all generated files to your fork:
+Alternatively, you can specify which notes file to use with the `--input` flag:
 ```bash
-git add outputs/
-git commit -m "chore: initialize project with manifest and strategy"
-git push origin project/awesome-client-analysis # Push the new branch the script created
+python project_init/cli.py --input inputs/2023-10-27-awesome-client-notes.md
 ```
-3. Finally, give your collaborator access to this fork and branch.
+
+### Step 6: Review, Commit, and Push
+1.  Review the generated files in the `outputs/` directory.
+2.  Commit the notes and the generated files to your fork. The script will suggest a branch name like `project/your-project-name`.
+    ```bash
+    git add inputs/ outputs/
+    git commit -m "chore: initialize project with manifest and strategy"
+    git push origin project/awesome-client-analysis # Push the new branch the script created
+    ```
+3.  Finally, give your collaborator access to this fork and branch.
 
 ---
 
@@ -82,7 +101,7 @@ cd ml-project-launch
 git fetch origin
 git checkout project/awesome-client-analysis
 ```
-3. The `outputs/` directory contains your blueprint (`manifest.json` and `strategy.md`) for execution.
+3. The `outputs/` directory contains your blueprint (`manifest.json` and `strategy.md`) for execution. The original notes are in the `inputs/` directory.
 
 ---
 
@@ -106,25 +125,28 @@ ml-project-launch/
 │
 ├── .github/
 │   └── workflows/                 # For GitHub Actions CI/CD (future use)
-│       └── ...                    # You can add this later
-│
-├── project_init/                 # Main directory for the initialization script
-│   ├── __init__.py               # Makes this a Python package
-│   ├── cli.py                    # The main script to run (Command-Line Interface)
-│   ├── questions.py              # Contains the list of questions and structure
-│   └── templates/                # Directory for any file templates
-│       └── STRATEGY_TEMPLATE.md  # A base template to guide the LLM's output
 │
 ├── docs/                         # For general documentation about *using* this workflow
 │   └── WORKFLOW_GUIDE.md
 │
-├── outputs/                      # Empty directory. For script output (gitignored later)
-│   └── .gitkeep                  # Empty file to preserve the directory in git
+├── inputs/                       # For storing project notes files
+│   └── .gitkeep                  # Example: my-project-notes.md
+│
+├── project_init/                 # Main directory for the initialization script
+│   ├── __init__.py               # Makes this a Python package
+│   ├── cli.py                    # The main script to run (Command-Line Interface)
+│   └── notes_parser.py           # Logic for parsing the notes file
+│
+├── outputs/                      # For script output (e.g., manifest.json)
+│   └── .gitkeep
+│
+├── templates/                    # Directory for any file templates
+│   └── PROJECT_NOTES_TEMPLATE.md # The template for project notes
 │
 ├── .env.example                  # Example file for environment variables (e.g., API keys)
 ├── .gitignore
 ├── LICENSE
 ├── README.md                     # Explains the purpose of this template repo
 ├── requirements.txt              # Python dependencies for the script
-└── runtime.txt                   # Optional: Specifies Python version if deploying
+└── setup.py                      # Makes the project installable
 ```
