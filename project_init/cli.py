@@ -180,12 +180,12 @@ def main():
         with open(manifest_path, 'w') as file:
             json.dump(answers, file, indent=4)
         logger.success(f"Project manifest saved to: {manifest_path}")
-        console.print(f"[bold green]✓ Project manifest saved to:[/bold green] {manifest_path}")
+        console.print(f"[bold green]✅ Project manifest saved to:[/bold green] {manifest_path}")
 
         # TODO: Phase 2 - Create a new Git branch
         proposed_branch_name = f"project/{project_name_slug}"
         logger.info(f"Phase 2: Proposed Git branch name is '{proposed_branch_name}'")
-        console.print(f"[bold yellow]Phase 2 will create Git branch:[/bold green] {proposed_branch_name}")
+        console.print(f"[bold yellow]Phase 2 will create Git branch:[/bold yellow] {proposed_branch_name}")
 
         # TODO: Phase 3 - LLM Call and strategy generation
         logger.info("Phase 3: LLM strategy generation will be implemented here.")
