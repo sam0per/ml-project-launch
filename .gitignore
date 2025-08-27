@@ -2,6 +2,10 @@
 /outputs/*
 !/outputs/.gitkeep
 
+# Script inputs
+/inputs/*
+!/inputs/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
