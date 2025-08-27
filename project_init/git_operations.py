@@ -111,9 +111,18 @@ def branch_exists(branch_name: str) -> bool:
     """
     logger.debug(f"Checking if branch '{branch_name}' exists...")
     try:
-        run_git_command(['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
-        return True
-    except GitError:
+        # This command returns 0 if branch exists, 1 if it doesn't
+        result = subprocess.run(
+            ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'],
+            capture_output=True,
+            text=True,
+            check=False  # Don't raise exception on non-zero exit
+        )
+        # Return True only if the command succeeded (exit code 0)
+        return result.returncode == 0
+    except Exception as e:
+        # Only log real unexpected errors
+        logger.warning(f"Unexpected error checking branch existence: {e}")
         return False
 
 def validate_branch_does_not_exist(branch_name: str) -> None:
