@@ -61,9 +61,14 @@ Before running the script, you must document the project's requirements in a str
     ```
 2.  **Copy the template** into the `inputs` directory and rename it. It's good practice to include the date.
     ```bash
-    cp templates/PROJECT_NOTES_TEMPLATE.md inputs/2023-10-27-awesome-client-notes.md
+    cp templates/PROJECT_NOTES_TEMPLATE.md inputs/20250827-awesome-client-notes.md
     ```
-3.  **Fill out the new Markdown file** (`inputs/2023-10-27-awesome-client-notes.md`) with the project details.
+3.  **Fill out the new Markdown file** (`inputs/20250827-awesome-client-notes.md`) with the project details.
+
+<figure>
+    <img src="./covid_risk_forecasting_notes.png" width="300" height="200">
+    <figcaption>An example of meeting notes</figcaption>
+</figure>
 
 ### Step 5: Run the Project Initialization Script
 Execute the script from the root of the project. It will automatically find the most recent notes file in the `inputs/` directory, parse it, and generate the project manifest.
@@ -74,12 +79,12 @@ python project_init/cli.py
 
 Alternatively, you can specify which notes file to use with the `--input` flag:
 ```bash
-python project_init/cli.py --input inputs/2023-10-27-awesome-client-notes.md
+python project_init/cli.py --input inputs/20250827-awesome-client-notes.md
 ```
 
 ### Step 6: Review, Commit, and Push
 1.  Review the generated files in the `outputs/` directory.
-2.  Commit the notes and the generated files to your fork. The script will suggest a branch name like `project/your-project-name`.
+2.  Commit the notes and the generated files to your fork ([Link to conventional commits](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13)). The script will suggest a branch name like `project/your-project-name`.
     ```bash
     git add inputs/ outputs/
     git commit -m "chore: initialize project with manifest and strategy"
