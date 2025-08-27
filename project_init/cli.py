@@ -7,6 +7,7 @@ Handles notes parsing, manifest generation, and project setup.
 # Standard library imports
 import json
 import argparse
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -17,6 +18,13 @@ import rich.traceback
 
 # Local imports
 from project_init.notes_parser import parse_notes
+from project_init.git_operations import (
+    create_project_branch,
+    NotAGitRepositoryError,
+    DirtyWorkingTreeError,
+    BranchExistsError,
+    GitError
+)
 
 # Initialize Rich console for pretty printing
 console = Console()
@@ -157,22 +165,47 @@ def main():
     console.print("[bold green]🎯 ML Project Initialization Script[/bold green]")
     console.print("This script will parse your meeting notes and create a project manifest.\n")
     
-    # TODO: Phase 2 - Check if we're in a Git repo first
-    logger.debug("Phase 2: Git check will be implemented here.")
-    
     try:
         # Determine which notes file to use
         notes_file = get_notes_file_path(args)
         
-        # Parse the notes file
+        # Parse the notes file to get project name FIRST
         answers = parse_notes(notes_file)
-        
-        # Get project name for logging and filenames
         project_name = answers.get('project_name', 'new-project')
         logger.info(f"Project name from notes: '{project_name}'")
-        
-        # Generate a manifest filename based on project name
         project_name_slug = slugify(project_name)
+        
+        # PHASE 2: Git Operations - Do this BEFORE generating files
+        branch_name = f"project/{project_name_slug}"
+        console.print(f"[bold blue]Setting up Git branch:[/bold blue] {branch_name}")
+        
+        try:
+            create_project_branch(branch_name)
+            console.print(f"[bold green]✓ Successfully created and switched to branch:[/bold green] {branch_name}")
+        except NotAGitRepositoryError:
+            console.print(f"[bold red]Error:[/bold red] Current directory is not a Git repository.")
+            console.print("[bold]How to fix it:[/bold] Please run this script from within your forked project repository.")
+            console.print("\n[bold yellow]Hint:[/bold yellow] Make sure you:")
+            console.print("  1. Forked the original template repository")
+            console.print("  2. Cloned your fork to your local machine")
+            console.print("  3. Are running this script from that cloned directory")
+            sys.exit(1)
+        except DirtyWorkingTreeError:
+            console.print(f"[bold red]Error:[/bold red] Your working tree has uncommitted changes.")
+            console.print("[bold]How to fix it:[/bold] Please commit your changes with [cyan]git commit[/cyan] or temporarily stash them with [cyan]git stash[/cyan].")
+            console.print("\n[bold yellow]Hint:[/bold yellow] You can view your changes with [cyan]git status[/cyan]")
+            sys.exit(1)
+        except BranchExistsError:
+            console.print(f"[bold red]Error:[/bold red] Branch '{branch_name}' already exists.")
+            console.print("[bold]How to fix it:[/bold] Please choose a different project name or delete the existing branch.")
+            console.print(f"\n[bold yellow]Hint:[/bold yellow] You can delete it with: [cyan]git branch -D {branch_name}[/cyan]")
+            sys.exit(1)
+        except GitError as e:
+            console.print(f"[bold red]Git Error:[/bold red] {e}")
+            console.print("[bold]How to fix it:[/bold] Please check your Git configuration and try again.")
+            sys.exit(1)
+        
+        # Now generate files on the new branch
         manifest_path = OUTPUT_DIR / f"{project_name_slug}_manifest.json"
         logger.debug(f"Manifest path determined: {manifest_path}")
 
@@ -180,22 +213,18 @@ def main():
         with open(manifest_path, 'w') as file:
             json.dump(answers, file, indent=4)
         logger.success(f"Project manifest saved to: {manifest_path}")
-        console.print(f"[bold green]✅ Project manifest saved to:[/bold green] {manifest_path}")
-
-        # TODO: Phase 2 - Create a new Git branch
-        proposed_branch_name = f"project/{project_name_slug}"
-        logger.info(f"Phase 2: Proposed Git branch name is '{proposed_branch_name}'")
-        console.print(f"[bold yellow]Phase 2 will create Git branch:[/bold yellow] {proposed_branch_name}")
+        console.print(f"[bold green]✓ Project manifest saved to:[/bold green] {manifest_path}")
 
         # TODO: Phase 3 - LLM Call and strategy generation
         logger.info("Phase 3: LLM strategy generation will be implemented here.")
         console.print("[bold yellow]Phase 3 will generate the strategy document using an LLM.[/bold yellow]")
 
-        console.print(f"\n[bold green]✅ Phase 1 complete![/bold green]")
+        console.print(f"\n[bold green]✅ Phase 1 & 2 complete![/bold green]")
+        console.print(f"   - Branch: [bold]{branch_name}[/bold]")
         console.print(f"   - Manifest: [bold]{manifest_path}[/bold]")
         console.print(f"   - Log file: [dim]{log_path}[/dim]")
         console.print(f"   - Source: [dim]{notes_file}[/dim]")
-        logger.success("Phase 1 execution completed successfully.")
+        logger.success("Phase 1 & 2 execution completed successfully.")
 
     except Exception as e:
         logger.critical(f"Script failed: {e}")
